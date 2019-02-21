@@ -1,4 +1,5 @@
 
+# this class contains methods to predict the value of the stock price
 class StockPrice(object):
 	def __init__(self, company_name='GOOGL', steps=10, bs=128, dr=0.0, epochs=1000):
 		self.steps = steps
@@ -11,9 +12,11 @@ class StockPrice(object):
 		self.create_subsets()
 		self.build_model()
 
+	# this function loads a model from a file
 	def load_model_from_file(self, path):
 		self.model = keras.models.load_model(path)
 
+	# this function loads the data for a specific company
 	def load_data(self):
 		company = pickle.load(open(self.company_name+'.npy', 'r'))
 		stock_prices = company.close.values.astype('float32')
@@ -36,6 +39,7 @@ class StockPrice(object):
 		self.scaler = MinMaxScaler(feature_range=(0, 1))
 		self.stock_prices = self.scaler.fit_transform(stock_prices)
 
+	# this function splits the data into training and testing datasets for cross validation
 	def create_subsets(self, tr_percentage=0.7):
 		# split data into training set and test set
 		l = len(self.stock_prices)
@@ -57,6 +61,7 @@ class StockPrice(object):
 		self.trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
 		self.testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 1))
 
+	# this function designs the main NN structure to be trained
 	def build_model(self):
 		self.model = Sequential()
 		# Model M1
@@ -64,11 +69,13 @@ class StockPrice(object):
 		self.model.add(Dense(1))
 		self.model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
+	# this function trains the current NN model
 	def train(self):
 		self.model.fit(self.trainX, self.trainY, epochs=self.epochs,
 			batch_size=self.batch_size)
 		self.model.save('./'+self.company_name+'_model-bs'+str(self.batch_size)+'-steps'+str(self.steps))
 
+	# this function evaluates the performance of the trained model on both the training and testing datasets
 	def evaluate(self):
 		# make predictions
 		trainPredict = self.model.predict(self.trainX)
@@ -88,6 +95,7 @@ class StockPrice(object):
 		self.testMAPE = np.mean(np.abs((self.testY[0] - self.testPredict[:,0]) / self.testY[0])) * 100
 		print 'Test Score: RMSE =', self.testRMSE, ' MAPE =', self.testMAPE
 
+	# this function plots the results
 	def plot_results(self):
 		import matplotlib.pyplot as plt
 		import matplotlib.dates as mdates
@@ -141,6 +149,13 @@ class StockPrice(object):
 
 		plt.show()
 
+	# this function loads a model from a file
+	def load_model_from_file(self, path):
+		self.model = keras.models.load_model(path)
+
+	# this function saves the model to a file
 	def save_model_to_file(self):
 		from keras.utils import plot_model
 		plot_model(self.model, show_layer_names=False, to_file='model1-google.eps')
+
+

@@ -41,6 +41,7 @@ if __name__ == '__main__':
 	for i in companies:
 		save_data_file(i)'''
 
+	# different values for hyperparameters
 	steps = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
 	batch_size = [16, 32, 64, 128, 256, 512]
 	dropout = [0.0, 0.01, 0.03, 0.05, 0.07, 0.1, 0.2]
